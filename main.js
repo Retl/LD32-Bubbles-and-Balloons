@@ -6,12 +6,15 @@ var cursors;
 var score;
 var scoreText;
 
+var target;
+
 function preload() {
 	game.load.image('sky', './img/grid_800x600.png');
     game.load.image('ground', './img/b_blue.png');
     game.load.image('star', './img/b_red.png');
     game.load.image('grid', './img/grid_800x600.png');
     game.load.image('red', './img/b_red.png');
+    game.load.image('target', './img/target.png');
     // game.load.spritesheet('dude', './img/b_yellow.png', 32, 48);
     game.load.image('dude', './img/b_yellow.png', 32, 48);
 }
@@ -101,7 +104,12 @@ function create() {
 
     scoreText = game.add.text(16, 16, 'score: 0', {fontSize: '32px', fill: '#888'});
     scoreText2 = game.add.text(14, 14, 'score: 0', {fontSize: '36px', fill: '#ddd'});
-
+    target = game.add.sprite(320, 320, 'target');
+	target.anchor.x = 0.5;
+	target.anchor.y = 0.5;
+    target.kill();
+	
+	game.input.onDown.add(clickHandler, this);
 }
 
 function update() {
@@ -153,15 +161,24 @@ function update() {
         game.physics.arcade.moveToPointer(player, 400);
 
         //  if it's overlapping the mouse, don't move any more
-        if (Phaser.Rectangle.contains(player.body, game.input.x, game.input.y))
-        {
-            player.body.velocity.setTo(0, 0);
-        }
+        // if (Phaser.Rectangle.contains(player.body, game.input.x, game.input.y))
+        // {
+            // player.body.velocity.setTo(0, 0);
+        // }
     }
     else
     {
         player.body.velocity.setTo(0, 0);
     }
+	
+	
+	if ( game.physics.arcade.distanceBetween(player, target) < 32 ) {
+			target.kill();
+		}
+	
+	if (target.alive) {
+		game.physics.arcade.moveToObject(player, target, 400);
+	}
 }
 
 function render() {
@@ -169,6 +186,16 @@ function render() {
     game.debug.spriteInputInfo(player, 32, 32);
     game.debug.geom(player.input._tempPoint);
 
+}
+
+function clickHandler() {
+	x = game.input.mousePointer.x;
+	y = game.input.mousePointer.y;
+	
+	target.x = x;
+	target.y = y;
+	target.revive();
+	console.log("omg you clicked " + x + ", " + y );
 }
 
 function collectStar (player, star) {
