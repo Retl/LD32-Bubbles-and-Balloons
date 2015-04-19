@@ -1,18 +1,3 @@
-<!doctype html> 
-<html lang="en"> 
-<head> 
-	<meta charset="UTF-8" />
-	<title>Phaser - Making your first game, part 1</title>
-    <script src="//cdn.jsdelivr.net/phaser/2.2.2/phaser.min.js"></script>
-    <style type="text/css">
-        body {
-            margin: 0;
-        }
-    </style>
-</head>
-<body>
-
-<script type="text/javascript">
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 var player;
@@ -80,6 +65,8 @@ function create() {
 	
 	// The player and its settings.
 	player = game.add.sprite(32, game.world.height - 150, 'dude');
+	player.inputEnabled = true;
+	player.input.pixelPerfectClick = true;
 
 	// Enable physics on the player.
 	game.physics.arcade.enable(player);
@@ -158,6 +145,30 @@ function update() {
     {
         player.body.velocity.y = -10*60;
     }
+
+    //  only move when you click
+    if (game.input.mousePointer.isDown)
+    {
+        //  400 is the speed it will move towards the mouse
+        game.physics.arcade.moveToPointer(player, 400);
+
+        //  if it's overlapping the mouse, don't move any more
+        if (Phaser.Rectangle.contains(player.body, game.input.x, game.input.y))
+        {
+            player.body.velocity.setTo(0, 0);
+        }
+    }
+    else
+    {
+        player.body.velocity.setTo(0, 0);
+    }
+}
+
+function render() {
+
+    game.debug.spriteInputInfo(player, 32, 32);
+    game.debug.geom(player.input._tempPoint);
+
 }
 
 function collectStar (player, star) {
@@ -170,8 +181,3 @@ function collectStar (player, star) {
 	scoreText.text = 'Score: ' + score;
 	scoreText2.text = scoreText.text;
 }
-
-</script>
-
-</body>
-</html>
